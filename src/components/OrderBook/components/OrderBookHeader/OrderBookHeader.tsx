@@ -9,7 +9,6 @@ interface OrderBookHeaderProps {
   onSymbolChange: (option: CustomSelectOption) => void;
   onPrecisionChange: (option: CustomSelectOption) => void;
   isConnected: boolean;
-  error: string | null;
 }
 
 export function OrderBookHeader({
@@ -20,7 +19,6 @@ export function OrderBookHeader({
   onSymbolChange,
   onPrecisionChange,
   isConnected,
-  error,
 }: OrderBookHeaderProps) {
   return (
     <header className="flex shrink-0 items-center justify-between border-b border-sys-border px-4 py-3">
@@ -31,6 +29,7 @@ export function OrderBookHeader({
             options={symbolOptions}
             value={symbolOption}
             onChange={(value) => onSymbolChange(value as CustomSelectOption)}
+            isSearchable={false}
           />
         </div>
 
@@ -40,6 +39,7 @@ export function OrderBookHeader({
             options={precisionOptions}
             value={precisionOption}
             onChange={(value) => onPrecisionChange(value as CustomSelectOption)}
+            isSearchable={false}
           />
         </div>
       </div>
@@ -52,8 +52,6 @@ export function OrderBookHeader({
         <span className="text-xs text-sys-text-muted">
           {isConnected ? 'Live' : 'Connecting'}
         </span>
-
-        {error && <span className="text-xs text-sys-ask">{error}</span>}
       </div>
     </header>
   );

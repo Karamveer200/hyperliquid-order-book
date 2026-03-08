@@ -145,8 +145,9 @@ export function OrderBookWidget() {
         onSymbolChange={handleSymbolChange}
         onPrecisionChange={handlePrecisionChange}
         isConnected={isConnected}
-        error={error}
       />
+
+      {error && <span className="text-xs text-sys-ask">{error}</span>}
 
       <OrderBookColumnHeaders symbol={displaySymbol!} />
 
