@@ -97,7 +97,7 @@ export const useHyperliquidOrderBook = ({
           );
 
           const sortedAsks = data.levels[1]?.sort(
-            (a, b) => Number(a.px) - Number(b.px)
+            (a, b) => Number(b.px) - Number(a.px)
           );
 
           setState({

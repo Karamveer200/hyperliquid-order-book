@@ -3,7 +3,7 @@ import { WsLevel } from '@/lib/hyperliquid/ws-types';
 const HIGHLIGHT_BG_BID = 'rgba(63, 182, 139, 0.25)';
 const HIGHLIGHT_BG_ASK = 'rgba(255, 83, 83, 0.25)';
 
-export const ROW_HEIGHT_PX = 24;
+export const ROW_HEIGHT_PX = 20;
 export const ROW_INDEX_ATTR = 'data-row-index';
 export const MAX_VISIBLE_ROWS = 20;
 export const SUMMARY_OFFSET_PX = 12;
