@@ -18,6 +18,8 @@ import {
   SUMMARY_SIZE_ATTR,
   SUMMARY_TOTAL_ATTR,
 } from '../../utils/helpers';
+import { Skeleton } from '@mui/material';
+import CustomSkeleton from '@/components/shared/CustomSkeleton';
 
 interface OrderBookSideProps {
   symbol: string;
@@ -47,7 +49,11 @@ const OrderBookSideComponent = ({
     const pos = mousePositionRef.current;
     const box = summaryBoxRef.current;
     if (!pos || !box) return;
-    const { sumSize, sumNotional } = getOrderSummaryFromIndex(rows, index, isBid);
+    const { sumSize, sumNotional } = getOrderSummaryFromIndex(
+      rows,
+      index,
+      isBid
+    );
     showSummaryBox(box, pos.x, pos.y, sumSize, sumNotional);
   };
 
@@ -151,21 +157,29 @@ const OrderBookSideComponent = ({
         onMouseMove={handleContainerMouseMove}
         onMouseLeave={handleContainerMouseLeave}
       >
-        {rows.map((row, index) => (
-          <div
-            key={index}
-            {...{ [ROW_INDEX_ATTR]: index }}
-            onMouseEnter={(e) => handleRowMouseEnter(e, rows)}
-            className="transition-colors duration-150"
-          >
-            <OrderBookRow
-              level={row.level}
-              depthPercent={row.depthPercent}
-              total={row.total}
-              isBid={isBid}
-            />
+        {rows?.length > 0 ? (
+          <>
+            {rows.map((row, index) => (
+              <div
+                key={row.level.px}
+                {...{ [ROW_INDEX_ATTR]: index }}
+                onMouseEnter={(e) => handleRowMouseEnter(e, rows)}
+                className="transition-colors duration-150 fade-in"
+              >
+                <OrderBookRow
+                  level={row.level}
+                  depthPercent={row.depthPercent}
+                  total={row.total}
+                  isBid={isBid}
+                />
+              </div>
+            ))}
+          </>
+        ) : (
+          <div className="flex min-h-0 flex-1 flex-col">
+            <CustomSkeleton sx={{ width: '100%', flex: 1 }} />
           </div>
-        ))}
+        )}
       </div>
       {summaryPortal}
     </>

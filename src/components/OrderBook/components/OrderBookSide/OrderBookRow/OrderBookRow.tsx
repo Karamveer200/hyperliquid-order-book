@@ -56,7 +56,7 @@ function OrderBookRowComponent({
       style={{ height: `${ROW_HEIGHT_PX}px` }}
     >
       <div
-        className={`absolute inset-y-0 right-0 opacity-[0.12] transition-[width] duration-150 ease-out ${
+        className={`absolute inset-y-0 right-0 opacity-[0.2] transition-[width] duration-150 ease-out ${
           isBid ? 'bg-sys-bid' : 'bg-sys-ask'
         }`}
         style={{ width: `${depthPercent}%` }}
