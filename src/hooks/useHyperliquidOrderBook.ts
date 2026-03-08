@@ -61,7 +61,6 @@ export const useHyperliquidOrderBook = ({
   };
 
   const updateSubscription = (updatedParams: SubscriptionParams) => {
-    console.log('updateSubscription', updatedParams);
     const ws = wsRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
@@ -156,7 +155,7 @@ export const useHyperliquidOrderBook = ({
 
   useEffect(() => {
     if (!coin || !nSigFigs || !!subParamsRef.current) return;
-    // If subParamsRef.current is not null, websocket is already subscribed initially
+    // If subParamsRef.current exists, websocket is already subscribed initially
 
     subParamsRef.current = { coin, nSigFigs, mantissa };
 

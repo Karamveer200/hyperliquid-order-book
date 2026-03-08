@@ -10,20 +10,33 @@
   /* Backdrop Blur */
   --backdrop-blur-xs: 2px;
 
-  /* Brand Colors */
+  /* Brand / UI Colors */
   --color-sys-black-100: #252525;
   --color-sys-black-200: #191919;
   --color-sys-black-300: #101010;
+  --color-sys-black-400: #0d0d0f;
+
+  --color-sys-surface: #131318;
+  --color-sys-surface-elevated: #1c1c21;
+  --color-sys-surface-header: #15191c;
+  --color-sys-border: #2d2d2d;
+
+  --color-sys-text-muted: #9b9b9b;
+  --color-sys-text: #c7c7c7;
+  --color-sys-text-strong: #e5e7eb;
+
   --color-sys-mint-100: #94f1e8;
+  --color-sys-bid: #3fb68b;
+  --color-sys-ask: #ff5353;
+  --color-sys-divider: #6ee7b7;
 }
 
 body {
   font-family: 'Public Sans', sans-serif;
   overflow-x: hidden;
-  /* Optimize scroll performance */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: var(--color-sys-white-100);
+  color: var(--color-sys-text);
 }
 
 /* Custom scrollbar */
@@ -45,4 +58,18 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #353535;
+}
+
+/* Order book row flash when data updates */
+@keyframes order-book-row-flash {
+  0% {
+    background-color: rgba(193, 189, 189, 0.12);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.order-book-row-flash {
+  animation: order-book-row-flash 0.5s ease-out forwards;
 }

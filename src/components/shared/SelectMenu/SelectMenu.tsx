@@ -5,7 +5,6 @@ import Select, { StylesConfig, Props as SelectProps } from 'react-select';
 export interface CustomSelectOption {
   label: string;
   value: string;
-  data?: any;
 }
 
 // Custom theme styles for react-select components
@@ -148,7 +147,12 @@ export const SelectMenu: React.FC<CustomSelectProps> = ({
       instanceId={props.instanceId || 'react-select'}
       formatOptionLabel={(option: any) => (
         <div
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '13px',
+          }}
         >
           <span style={{ fontWeight: '300' }}>{option.label}</span>
         </div>

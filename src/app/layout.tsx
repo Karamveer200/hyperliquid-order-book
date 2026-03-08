@@ -1,7 +1,6 @@
 import { Public_Sans } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
-import { QueryProvider } from '@/lib/providers/QueryProvider';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
 
 const publicSans = Public_Sans({
@@ -45,9 +44,7 @@ export default function RootLayout({
       </head>
 
       <body className={`antialiased ${publicSans.className} bg-sys-black-900`}>
-        <AppRouterCacheProvider>
-          <QueryProvider>{children}</QueryProvider>
-        </AppRouterCacheProvider>
+        <AppRouterCacheProvider>{children}</AppRouterCacheProvider>
       </body>
     </html>
   );
