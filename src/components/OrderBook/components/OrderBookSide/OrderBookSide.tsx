@@ -47,7 +47,7 @@ const OrderBookSideComponent = ({
     const pos = mousePositionRef.current;
     const box = summaryBoxRef.current;
     if (!pos || !box) return;
-    const { sumSize, sumNotional } = getOrderSummaryFromIndex(rows, index);
+    const { sumSize, sumNotional } = getOrderSummaryFromIndex(rows, index, isBid);
     showSummaryBox(box, pos.x, pos.y, sumSize, sumNotional);
   };
 

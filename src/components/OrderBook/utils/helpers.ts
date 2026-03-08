@@ -68,16 +68,18 @@ export const applyHighlightFromIndex = (
   const rowEls = container.querySelectorAll<HTMLElement>(`[${ROW_INDEX_ATTR}]`);
   rowEls.forEach((el) => {
     const i = Number(el.getAttribute(ROW_INDEX_ATTR));
-    if (!Number.isNaN(i))
-      el.style.backgroundColor = i >= index ? highlightBg : '';
+    if (Number.isNaN(i)) return;
+    const inRange = isBid ? i <= index : i >= index;
+    el.style.backgroundColor = inRange ? highlightBg : '';
   });
 };
 
 export const getOrderSummaryFromIndex = (
   rows: RowData[],
-  index: number
+  index: number,
+  isBid: boolean
 ): { sumSize: number; sumNotional: number } => {
-  const slice = rows.slice(index);
+  const slice = isBid ? rows.slice(0, index + 1) : rows.slice(index);
   const sumSize = slice.reduce((acc, r) => acc + Number(r.level.sz), 0);
   const sumNotional = slice.reduce((acc, r) => acc + r.total, 0);
   return { sumSize, sumNotional };
@@ -106,7 +108,7 @@ export const showSummaryBox = (
   if (sizeEl) {
     const sizeValue = new Intl.NumberFormat('en', {
       notation: 'compact',
-      maximumFractionDigits: 2,
+      maximumFractionDigits: 3,
     }).format(sumSize);
 
     sizeEl.textContent = sizeValue;
@@ -115,7 +117,7 @@ export const showSummaryBox = (
   if (totalEl) {
     totalEl.textContent = new Intl.NumberFormat('en', {
       notation: 'compact',
-      maximumFractionDigits: 2,
+      maximumFractionDigits: 3,
     }).format(sumNotional);
   }
 
