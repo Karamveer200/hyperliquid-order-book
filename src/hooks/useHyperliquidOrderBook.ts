@@ -48,14 +48,8 @@ export const useHyperliquidOrderBook = ({
   );
   const reconnectAttempts = useRef(0);
 
-  const lastMessageTimeRef = useRef<number>(Date.now());
-
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const reconnectDelayMs = 3000;
-  const maxReconnectAttempts = 5;
-  const staleTimeoutMs = 10000;
 
   const subscribe = (ws: WebSocket) => {
     if (!subParamsRef.current) return;
@@ -84,8 +78,6 @@ export const useHyperliquidOrderBook = ({
     };
 
     ws.onmessage = (event) => {
-      lastMessageTimeRef.current = Date.now();
-
       try {
         const msg = JSON.parse(event.data as string);
 
@@ -120,6 +112,9 @@ export const useHyperliquidOrderBook = ({
     };
 
     ws.onclose = () => {
+      const reconnectDelayMs = 3000;
+      const maxReconnectAttempts = 5;
+
       setIsConnected(false);
       wsRef.current = null;
 
