@@ -115,7 +115,8 @@ export const useHyperliquidOrderBook = ({
     };
 
     ws.onerror = () => {
-      setError('WebSocket error');
+      setIsConnected(false);
+      setError('Connection lost');
     };
 
     ws.onclose = () => {
@@ -176,6 +177,7 @@ export const useHyperliquidOrderBook = ({
         const ws = wsRef.current;
 
         if (!ws || ws.readyState !== WebSocket.OPEN) {
+          ws?.close();
           connect();
         }
       }
@@ -186,23 +188,6 @@ export const useHyperliquidOrderBook = ({
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
-
-  // stale connection detection
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const ws = wsRef.current;
-
-      if (!ws) return;
-
-      const stale = Date.now() - lastMessageTimeRef.current > staleTimeoutMs;
-
-      if (stale) {
-        ws.close();
-      }
-    }, 5000);
-
-    return () => clearInterval(interval);
   }, []);
 
   return { ...state, isConnected, error, updateSubscription };
