@@ -90,20 +90,12 @@ export function OrderBookWidget() {
     ? PRECISION_MAP[displaySymbol]?.[precision]
     : null;
 
-  const [flashTrigger, setFlashTrigger] = useState<number | null>(null);
-
   const { bids, spread, asks, isConnected, error, updateSubscription } =
     useHyperliquidOrderBook({
       coin: displaySymbol ?? '',
       nSigFigs: config?.nSigFigs ?? 0,
       mantissa: config?.mantissa ?? null,
     });
-
-  useEffect(() => {
-    if (flashTrigger === null) return;
-    const t = setTimeout(() => setFlashTrigger(null), 600);
-    return () => clearTimeout(t);
-  }, [flashTrigger]);
 
   const handleSymbolChange = (option: CustomSelectOption) => {
     const newSymbol = option.value as Symbol;
