@@ -21,7 +21,7 @@ export function OrderBookHeader({
   isConnected,
 }: OrderBookHeaderProps) {
   return (
-    <header className="flex shrink-0 items-center justify-between border-b border-sys-border px-4 py-3">
+    <header className="flex flex-col md460:flex-row shrink-0 items-center justify-between border-b border-sys-border px-4 py-2 gap-3">
       <div className="flex items-center gap-3">
         <span className="text-sm text-sys-text-muted">Symbol</span>
         <div className="min-w-[70px]">

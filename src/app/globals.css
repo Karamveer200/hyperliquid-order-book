@@ -2,6 +2,8 @@
 
 /* Tailwind v4 Theme Configuration */
 @theme {
+  --breakpoint-md460: 460px;
+
   --radius: 8px;
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
