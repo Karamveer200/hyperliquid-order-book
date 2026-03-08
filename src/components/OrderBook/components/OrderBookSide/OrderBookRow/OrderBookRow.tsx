@@ -1,6 +1,6 @@
 import { memo, useEffect, useRef } from 'react';
 import type { WsLevel } from '@/lib/hyperliquid/ws-types';
-import { ROW_HEIGHT_PX } from '../../../utils/helpers';
+import { ROW_HEIGHT_PX } from '@/components/OrderBook/utils/constants';
 
 const FLASH_CLASS = 'order-book-row-flash';
 const FLASH_DURATION_MS = 500;

@@ -1,24 +1,22 @@
 import { memo, useMemo, useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import type { WsLevel } from '@/lib/hyperliquid/ws-types';
-import { OrderBookRow } from './OrderBookRow/OrderBookRow';
+import { OrderBookRow } from '@/components/OrderBook/components/OrderBookSide/OrderBookRow/OrderBookRow';
 import {
   type RowData,
   computeRows,
   applyHighlightFromIndex,
   getRowIndexUnderPoint,
   getOrderSummaryFromIndex,
-  clearRowHighlight,
-  showSummaryBox,
-  hideSummaryBox,
-  updateSummaryBoxPosition,
+} from '@/components/OrderBook/utils/helpers';
+import {
   ROW_INDEX_ATTR,
   ROW_HEIGHT_PX,
   MAX_VISIBLE_ROWS,
-  SUMMARY_SIZE_ATTR,
-  SUMMARY_TOTAL_ATTR,
-} from '../../utils/helpers';
+} from '@/components/OrderBook/utils/constants';
+import { useOrderSummaryPortal } from '@/components/OrderBook/hooks/useOrderSummaryPortal';
 import CustomSkeleton from '@/components/shared/CustomSkeleton';
+import SummaryPortal from '@/components/OrderBook/components/OrderBookSide/SummaryPortal/SummaryPortal';
 
 interface OrderBookSideProps {
   symbol: string;
@@ -32,98 +30,59 @@ const OrderBookSideComponent = ({
   isBid = false,
 }: OrderBookSideProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const summaryBoxRef = useRef<HTMLDivElement>(null);
-  const mousePositionRef = useRef<{ x: number; y: number } | null>(null);
   const [containerHeight, setContainerHeight] = useState(0);
   const [hasMounted, setHasMounted] = useState(false);
 
-  useEffect(() => setHasMounted(true), []);
+  const rowsRef = useRef<RowData[]>([]);
 
-  const clearHighlight = () => {
-    clearRowHighlight(containerRef.current);
-    hideSummaryBox(summaryBoxRef.current);
-  };
+  const {
+    summaryBoxRef,
+    mousePositionRef,
+    showSummary,
+    hideSummary,
+    onMouseMove,
+    onMouseLeave,
+    clearRowHighlight,
+  } = useOrderSummaryPortal(containerRef);
 
-  const showSummaryAtMouse = (index: number, rows: RowData[]) => {
-    const pos = mousePositionRef.current;
-    const box = summaryBoxRef.current;
-    const container = containerRef.current;
-    if (!pos || !box || !container) return;
-
-    const containerRight = container.getBoundingClientRect().right;
-    const { sumSize, sumNotional } = getOrderSummaryFromIndex(
-      rows,
-      index,
-      isBid
-    );
-
-    showSummaryBox(box, containerRight, pos.y, sumSize, sumNotional);
-  };
-
-  const handleRowMouseEnter = (
-    e: React.MouseEvent<HTMLDivElement>,
-    rows: RowData[]
-  ) => {
-    const index = Number(e.currentTarget.getAttribute(ROW_INDEX_ATTR));
-    if (Number.isNaN(index)) return;
-    const container = containerRef.current;
-    if (!container) return;
-    mousePositionRef.current = { x: e.clientX, y: e.clientY };
-    applyHighlightFromIndex(container, index, rows, isBid);
-    showSummaryAtMouse(index, rows);
-  };
-
-  const handleContainerMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    mousePositionRef.current = { x: e.clientX, y: e.clientY };
-    const container = containerRef.current;
-
-    if (container) {
-      const containerRight = container.getBoundingClientRect().right;
-      updateSummaryBoxPosition(
-        summaryBoxRef.current,
-        containerRight,
-        e.clientY
-      );
-    }
-  };
-
-  const handleContainerMouseLeave = () => {
-    mousePositionRef.current = null;
-    clearHighlight();
-  };
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver((entries) => {
-      const { height } = entries[0]?.contentRect ?? { height: 0 };
-      setContainerHeight(height);
-    });
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  const rowCount = Math.max(
+  const maxVisibleRowsCount = Math.max(
     0,
     Math.min(MAX_VISIBLE_ROWS, Math.floor(containerHeight / ROW_HEIGHT_PX))
   );
 
   const rows = useMemo(
-    () => computeRows(levels, isBid, rowCount),
-    [levels, isBid, rowCount]
+    () => computeRows(levels, isBid, maxVisibleRowsCount),
+    [levels, isBid, maxVisibleRowsCount]
   );
 
-  const rowsRef = useRef(rows);
-  rowsRef.current = rows;
+  useEffect(() => setHasMounted(true), []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const ro = new ResizeObserver((entries) => {
+      const { height } = entries[0]?.contentRect ?? { height: 0 };
+      setContainerHeight(height);
+    });
+
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    rowsRef.current = rows;
+  }, [rows]);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     const pos = mousePositionRef.current;
+
     if (pos) {
       const index = getRowIndexUnderPoint(container, pos.x, pos.y);
       if (index !== null) {
-        applyHighlightFromIndex(container, index, rowsRef.current, isBid);
+        applyHighlightFromIndex(container, index, isBid);
         showSummaryAtMouse(index, rowsRef.current);
         return;
       }
@@ -132,32 +91,48 @@ const OrderBookSideComponent = ({
     clearHighlight();
   }, [rows, isBid]);
 
+  const clearHighlight = () => {
+    clearRowHighlight(containerRef.current);
+    hideSummary();
+  };
+
+  const showSummaryAtMouse = (index: number, rows: RowData[]) => {
+    const pos = mousePositionRef.current;
+    const container = containerRef.current;
+
+    if (!pos || !container) return;
+    const containerRight = container.getBoundingClientRect().right;
+
+    const { sumSize, sumNotional } = getOrderSummaryFromIndex(
+      rows,
+      index,
+      isBid
+    );
+
+    showSummary(containerRight, pos.y, sumSize, sumNotional);
+  };
+
+  const handleRowMouseEnter = (
+    e: React.MouseEvent<HTMLDivElement>,
+    rows: RowData[]
+  ) => {
+    const index = Number(e.currentTarget.getAttribute(ROW_INDEX_ATTR));
+    if (Number.isNaN(index)) return;
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    mousePositionRef.current = { x: e.clientX, y: e.clientY };
+    applyHighlightFromIndex(container, index, isBid);
+
+    showSummaryAtMouse(index, rows);
+  };
+
   const summaryPortal =
     hasMounted &&
     typeof document !== 'undefined' &&
     createPortal(
-      <div
-        ref={summaryBoxRef}
-        className="fixed z-9999 min-w-[120px] rounded-xs border border-sys-border bg-sys-surface px-3 py-2 shadow-lg"
-        style={{ display: 'none' }}
-      >
-        <div className="space-y-1 text-xs">
-          <div className="flex justify-between gap-4">
-            <span className="text-sys-text-muted">Size ({symbol})</span>
-            <span
-              {...{ [SUMMARY_SIZE_ATTR]: true }}
-              className="tabular-nums text-white"
-            />
-          </div>
-          <div className="flex justify-between gap-4">
-            <span className="text-sys-text-muted">Total ($)</span>
-            <span
-              {...{ [SUMMARY_TOTAL_ATTR]: true }}
-              className="tabular-nums text-white"
-            />
-          </div>
-        </div>
-      </div>,
+      <SummaryPortal summaryBoxRef={summaryBoxRef} symbol={symbol} />,
       document.body
     );
 
@@ -166,8 +141,8 @@ const OrderBookSideComponent = ({
       <div
         ref={containerRef}
         className="flex h-full min-h-0 flex-col"
-        onMouseMove={handleContainerMouseMove}
-        onMouseLeave={handleContainerMouseLeave}
+        onMouseMove={onMouseMove}
+        onMouseLeave={onMouseLeave}
       >
         {rows?.length > 0 ? (
           <>
