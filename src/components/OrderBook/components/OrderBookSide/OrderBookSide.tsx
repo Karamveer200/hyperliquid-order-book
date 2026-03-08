@@ -18,7 +18,6 @@ import {
   SUMMARY_SIZE_ATTR,
   SUMMARY_TOTAL_ATTR,
 } from '../../utils/helpers';
-import { Skeleton } from '@mui/material';
 import CustomSkeleton from '@/components/shared/CustomSkeleton';
 
 interface OrderBookSideProps {
@@ -48,13 +47,17 @@ const OrderBookSideComponent = ({
   const showSummaryAtMouse = (index: number, rows: RowData[]) => {
     const pos = mousePositionRef.current;
     const box = summaryBoxRef.current;
-    if (!pos || !box) return;
+    const container = containerRef.current;
+    if (!pos || !box || !container) return;
+
+    const containerRight = container.getBoundingClientRect().right;
     const { sumSize, sumNotional } = getOrderSummaryFromIndex(
       rows,
       index,
       isBid
     );
-    showSummaryBox(box, pos.x, pos.y, sumSize, sumNotional);
+
+    showSummaryBox(box, containerRight, pos.y, sumSize, sumNotional);
   };
 
   const handleRowMouseEnter = (
@@ -72,7 +75,16 @@ const OrderBookSideComponent = ({
 
   const handleContainerMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     mousePositionRef.current = { x: e.clientX, y: e.clientY };
-    updateSummaryBoxPosition(summaryBoxRef.current, e.clientX, e.clientY);
+    const container = containerRef.current;
+
+    if (container) {
+      const containerRight = container.getBoundingClientRect().right;
+      updateSummaryBoxPosition(
+        summaryBoxRef.current,
+        containerRight,
+        e.clientY
+      );
+    }
   };
 
   const handleContainerMouseLeave = () => {
@@ -181,6 +193,7 @@ const OrderBookSideComponent = ({
           </div>
         )}
       </div>
+
       {summaryPortal}
     </>
   );
