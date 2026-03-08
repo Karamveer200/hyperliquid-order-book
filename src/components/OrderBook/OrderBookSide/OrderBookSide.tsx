@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useMemo, useState, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import type { WsLevel } from '@/lib/hyperliquid/ws-types';
 import { OrderBookRow } from './OrderBookRow/OrderBookRow';
 
@@ -9,16 +9,9 @@ const ROW_HEIGHT_PX = 24;
 interface OrderBookSideProps {
   levels: WsLevel[];
   isBid: boolean;
-  formatPrice: (px: string) => string;
-  formatSize: (sz: string) => string;
 }
 
-function OrderBookSideComponent({
-  levels,
-  isBid,
-  formatPrice,
-  formatSize,
-}: OrderBookSideProps) {
+export function OrderBookSide({ levels, isBid }: OrderBookSideProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
 
@@ -34,16 +27,14 @@ function OrderBookSideComponent({
   }, []);
 
   const maxOrdersToShow = Math.min(
-    18,
+    20,
     Math.floor(containerHeight / ROW_HEIGHT_PX)
   );
 
   const rowCount = Math.max(0, maxOrdersToShow);
 
   const { rows } = useMemo(() => {
-    const sorted = [...levels].sort((a, b) => Number(b.px) - Number(a.px));
-
-    const slice = isBid ? sorted.slice(0, rowCount) : sorted.slice(-rowCount);
+    const slice = isBid ? levels.slice(0, rowCount) : levels.slice(-rowCount);
 
     const levelsForCum = isBid ? slice : [...slice].reverse();
 
@@ -84,12 +75,8 @@ function OrderBookSideComponent({
           depthPercent={depthPercent}
           total={total}
           isBid={isBid}
-          formatPrice={formatPrice}
-          formatSize={formatSize}
         />
       ))}
     </div>
   );
 }
-
-export const OrderBookSide = memo(OrderBookSideComponent);

@@ -9,25 +9,20 @@ export interface CustomSelectOption {
 }
 
 // Custom theme styles for react-select components
-export const customSelectTheme = (
-  variant: string = 'default',
-  menuWidth?: string,
-  maxHeight?: string,
-  embeddedStyles?: StylesConfig<any, any, any>
-) => ({
+export const customSelectTheme = () => ({
   control: (provided: any, state: any) => ({
     ...provided,
     background: '#131318',
     border: `1px solid #2d2d2d`,
     boxShadow: 'none',
     borderRadius: '2px',
-    minHeight: '44px',
+    minHeight: '32px',
+    minWidth: '72px',
+    padding: '0 6px',
 
     '&:hover': {
       borderColor: '#2d2d2d',
     },
-
-    ...embeddedStyles?.control?.(provided, state),
   }),
   menuPortal: (provided: any) => ({
     ...provided,
@@ -41,18 +36,12 @@ export const customSelectTheme = (
     borderRadius: '2px',
     backdropFilter: 'blur(10px)',
     zIndex: 9999,
-    maxHeight: maxHeight,
     overflow: 'hidden',
     position: 'absolute',
     right: 0,
     left: 'auto',
     transform: 'translateX(0)',
     marginTop: '0px',
-    ...(menuWidth && {
-      width: menuWidth,
-      minWidth: menuWidth,
-      maxWidth: menuWidth,
-    }),
   }),
   option: (provided: any, state: any) => {
     return {
@@ -63,11 +52,12 @@ export const customSelectTheme = (
           ? '#2d2d2d'
           : '#131318',
       color: '#c7c7c7',
-      padding: '10px 16px',
+      padding: '6px 10px',
       minHeight: 'auto',
       whiteSpace: 'normal',
       wordWrap: 'break-word',
       cursor: 'pointer',
+      fontSize: '13px',
       '&:hover': {
         backgroundColor: state.isSelected ? '#2d2d2d' : '#2d2d2d',
       },
@@ -76,33 +66,32 @@ export const customSelectTheme = (
   singleValue: (provided: any) => ({
     ...provided,
     color: '#c7c7c7',
-    fontSize: '16px',
+    fontSize: '13px',
     fontWeight: '300',
   }),
   placeholder: (provided: any) => ({
     ...provided,
     color: '#c7c7c7',
-    fontSize: '16px',
+    fontSize: '13px',
   }),
   input: (provided: any) => ({
     ...provided,
     color: '#c7c7c7',
+    fontSize: '13px',
   }),
   indicatorSeparator: (provided: any) => ({
     ...provided,
     backgroundColor: '#c7c7c7',
-    marginRight: '8px',
+    marginRight: '4px',
   }),
   dropdownIndicator: (provided: any, state: any) => ({
     ...provided,
-
     color: '#c7c7c7',
-
     transform: state.selectProps.menuIsOpen
-      ? 'rotate(180deg) translateX(10px)'
+      ? 'rotate(180deg) translateX(4px)'
       : 'rotate(0deg)',
     transition: 'transform 0.2s ease-in-out',
-    padding: '8px 8px 8px 0px',
+    padding: '4px 4px 4px 0',
 
     '&:hover': {
       color: '#c7c7c7',
@@ -119,7 +108,7 @@ export const customSelectTheme = (
   noOptionsMessage: (provided: any) => ({
     ...provided,
     color: '#c7c7c7',
-    fontSize: '16px',
+    fontSize: '13px',
   }),
   menuList: (base: any) => ({
     ...base,
@@ -133,8 +122,6 @@ interface ReactSelectProps extends SelectProps {
   usePortal?: boolean;
   minDate?: string | Date;
   maxDate?: string | Date;
-  maxHeight?: string;
-  menuWidth?: string;
   onMenuScrollToBottom?: () => void;
 }
 
@@ -148,16 +135,11 @@ export const SelectMenu: React.FC<CustomSelectProps> = ({
   usePortal = true,
   minDate,
   maxDate,
-  maxHeight = '300px',
   onMenuScrollToBottom,
-  menuWidth,
-  embeddedStyles = {},
-  additionalStyles = {},
   ...props
 }) => {
   const customSelectStyles: StylesConfig<any, any, any> = {
-    ...customSelectTheme(variant, menuWidth, maxHeight, embeddedStyles),
-    ...additionalStyles,
+    ...customSelectTheme(),
   };
 
   return (
@@ -166,8 +148,7 @@ export const SelectMenu: React.FC<CustomSelectProps> = ({
       instanceId={props.instanceId || 'react-select'}
       formatOptionLabel={(option: any) => (
         <div
-          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-          className="text-base"
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}
         >
           <span style={{ fontWeight: '300' }}>{option.label}</span>
         </div>
@@ -177,6 +158,9 @@ export const SelectMenu: React.FC<CustomSelectProps> = ({
       }
       menuPosition="fixed"
       menuPlacement="auto"
+      components={{
+        IndicatorSeparator: () => null,
+      }}
       {...props}
     />
   );

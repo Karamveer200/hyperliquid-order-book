@@ -35,6 +35,7 @@ export const useHyperliquidOrderBook = ({
   const [state, setState] = useState<OrderBookState>({
     bids: [],
     asks: [],
+    spread: '0',
     coin: '',
     time: 0,
   });
@@ -106,11 +107,21 @@ export const useHyperliquidOrderBook = ({
         const msg = JSON.parse(event.data as string);
         if (msg.channel === 'l2Book' && msg.data) {
           const data = msg.data as WsBook;
+
+          const sortedBids = data.levels[0]?.sort(
+            (a, b) => Number(b.px) - Number(a.px)
+          );
+
+          const sortedAsks = data.levels[1]?.sort(
+            (a, b) => Number(b.px) - Number(a.px)
+          );
+
           setState({
-            bids: data.levels[0] ?? [],
-            asks: data.levels[1] ?? [],
+            bids: sortedBids ?? [],
+            asks: sortedAsks ?? [],
             coin: data.coin,
             time: data.time,
+            spread: data.spread,
           });
         }
       } catch {

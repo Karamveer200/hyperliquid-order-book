@@ -1,18 +1,14 @@
-/**
- * Hyperliquid WebSocket types (l2Book / order book)
- * @see https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/websocket/subscriptions
- */
-
 export interface WsLevel {
   px: string; // price
   sz: string; // size
-  n: number;  // number of orders
+  n: number; // number of orders
 }
 
 export interface WsBook {
   coin: string;
   levels: [WsLevel[], WsLevel[]]; // [bids, asks]
   time: number;
+  spread: string; // NOT listed in official docs, but is returned by the API
 }
 
 export interface OrderBookState {
@@ -20,4 +16,5 @@ export interface OrderBookState {
   asks: WsLevel[];
   coin: string;
   time: number;
+  spread: string;
 }

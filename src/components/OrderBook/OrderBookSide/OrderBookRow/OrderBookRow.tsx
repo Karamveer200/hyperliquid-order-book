@@ -7,8 +7,6 @@ interface OrderBookRowProps {
   depthPercent: number;
   total: number;
   isBid: boolean;
-  formatPrice: (px: string) => string;
-  formatSize: (sz: string) => string;
 }
 
 export function OrderBookRow({
@@ -16,8 +14,6 @@ export function OrderBookRow({
   depthPercent,
   total,
   isBid,
-  formatPrice,
-  formatSize,
 }: OrderBookRowProps) {
   const priceColor = isBid ? 'text-[#3fb68b]' : 'text-[#ff5353]';
 
@@ -31,10 +27,16 @@ export function OrderBookRow({
       />
       <div className="relative z-10 grid w-full grid-cols-[1fr_1fr_1fr] gap-2 px-3">
         <span className={`tabular-nums ${priceColor}`}>
-          {formatPrice(level.px)}
+          {Number(level.px).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
         </span>
-        <span className="tabular-nums text-right text-[#c7c7c7]">
-          {formatSize(level.sz)}
+
+        <span className="tabular-nums text-center text-[#c7c7c7]">
+          {Number(level.sz).toLocaleString(undefined, {
+            maximumFractionDigits: 4,
+          })}
         </span>
         <span className="tabular-nums text-right text-[#c7c7c7]">
           {total.toLocaleString(undefined, {

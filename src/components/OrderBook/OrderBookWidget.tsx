@@ -39,44 +39,12 @@ export function OrderBookWidget() {
 
   const { nSigFigs, mantissa } = PRECISION_MAP[precision];
 
-  const { bids, asks, isConnected, error, updateSubscription } =
+  const { bids, spread, asks, isConnected, error, updateSubscription } =
     useHyperliquidOrderBook({
       coin: symbol,
       nSigFigs,
       mantissa,
     });
-
-  const formatPrice = useCallback(
-    (px: string) => {
-      const n = Number(px);
-      if (symbol === 'BTC')
-        return n.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        });
-      return n.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 4,
-      });
-    },
-    [symbol]
-  );
-
-  const formatSize = useCallback((sz: string) => {
-    const n = Number(sz);
-    if (n >= 1000)
-      return n.toLocaleString(undefined, { maximumFractionDigits: 0 });
-    return n.toLocaleString(undefined, { maximumFractionDigits: 4 });
-  }, []);
-
-  const spread = useMemo(() => {
-    const bestBid = bids[0];
-    const bestAsk = asks[0];
-    if (!bestBid || !bestAsk) return null;
-    const bidPx = Number(bestBid.px);
-    const askPx = Number(bestAsk.px);
-    return { spread: askPx - bidPx, bidPx, askPx };
-  }, [bids, asks]);
 
   const handlePrecisionChange = (newValue: unknown) => {
     const option = newValue as CustomSelectOption | null;
@@ -111,7 +79,7 @@ export function OrderBookWidget() {
     PRECISION_SELECT_OPTIONS[0];
 
   return (
-    <div className="flex h-full flex-col rounded-xl border border-[#2d2d2d] bg-[#131318] overflow-hidden shadow-xl max-h-[900px]">
+    <div className="flex h-full flex-col rounded-xl border border-[#2d2d2d] bg-[#131318] overflow-hidden shadow-xl max-h-[970px]">
       <div className="flex shrink-0 items-center justify-between px-4 py-3 border-b border-[#2d2d2d]">
         <div className="flex items-center gap-3">
           <span className="text-[#9b9b9b] text-sm">Market</span>
@@ -120,8 +88,6 @@ export function OrderBookWidget() {
               options={SYMBOL_OPTIONS}
               value={symbolOption}
               onChange={handleSymbolChange}
-              isClearable={false}
-              menuWidth="120px"
             />
           </div>
 
@@ -131,8 +97,6 @@ export function OrderBookWidget() {
               options={PRECISION_SELECT_OPTIONS}
               value={precisionOption}
               onChange={handlePrecisionChange}
-              isClearable={false}
-              menuWidth="100px"
             />
           </div>
         </div>
@@ -152,7 +116,7 @@ export function OrderBookWidget() {
       <div className="shrink-0 bg-[#15191C]">
         <div className="grid grid-cols-[1fr_1fr_1fr] gap-2 px-3 py-2.5 text-xs font-medium text-[#e5e7eb]">
           <div>Price</div>
-          <div className="text-right">Size ({symbol})</div>
+          <div className="text-center">Size ({symbol})</div>
           <div className="text-right">Total ({symbol})</div>
         </div>
         <div className="h-px w-full bg-[#6EE7B7]/40" aria-hidden />
@@ -160,36 +124,20 @@ export function OrderBookWidget() {
 
       <div className="flex min-h-0 flex-1 flex-col">
         <div className="min-h-0 flex-1 overflow-auto border-b border-[#2d2d2d]">
-          <OrderBookSide
-            levels={asks}
-            isBid={false}
-            formatPrice={formatPrice}
-            formatSize={formatSize}
-          />
+          <OrderBookSide levels={asks} isBid={false} />
         </div>
 
         <div className="shrink-0 px-4 py-2 bg-[#1c1c21] border-y border-[#2d2d2d] flex items-center justify-between text-sm">
           <span className="text-[#9b9b9b]">Spread</span>
           {spread ? (
-            <span className="text-[#c7c7c7] tabular-nums">
-              {formatPrice(String(spread.spread))}
-              <span className="text-[#9b9b9b] ml-1">
-                ({formatPrice(String(spread.bidPx))} /{' '}
-                {formatPrice(String(spread.askPx))})
-              </span>
-            </span>
+            <span className="text-[#c7c7c7] tabular-nums">{spread}</span>
           ) : (
             <span className="text-[#9b9b9b]">—</span>
           )}
         </div>
 
         <div className="min-h-0 flex-1 overflow-auto">
-          <OrderBookSide
-            levels={bids}
-            isBid={true}
-            formatPrice={formatPrice}
-            formatSize={formatSize}
-          />
+          <OrderBookSide levels={bids} isBid={true} />
         </div>
       </div>
     </div>
