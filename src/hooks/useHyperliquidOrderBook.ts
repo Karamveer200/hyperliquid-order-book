@@ -7,7 +7,7 @@ import { clientConfig } from '@/lib/config/clientConfig';
 export interface SubscriptionParams {
   coin: string;
   nSigFigs: number;
-  mantissa: number | null; // optional, for bucketing (e.g. 1, 2, 5 when nSigFigs is 5)
+  mantissa: number | null;
 }
 
 const buildPayload = ({ coin, nSigFigs, mantissa }: SubscriptionParams) => {
@@ -41,9 +41,6 @@ export const useHyperliquidOrderBook = ({
   });
 
   const wsRef = useRef<WebSocket | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   const subParamsRef = useRef<SubscriptionParams | null>(null);
 
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -51,43 +48,29 @@ export const useHyperliquidOrderBook = ({
   );
   const reconnectAttempts = useRef(0);
 
+  const lastMessageTimeRef = useRef<number>(Date.now());
+
+  const [isConnected, setIsConnected] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const reconnectDelayMs = 3000;
+  const maxReconnectAttempts = 5;
+  const staleTimeoutMs = 10000;
+
   const subscribe = (ws: WebSocket) => {
-    ws.send(
-      JSON.stringify({
-        method: 'subscribe',
-        subscription: buildPayload(subParamsRef.current!),
-      })
-    );
-  };
-
-  const updateSubscription = (updatedParams: SubscriptionParams) => {
-    const ws = wsRef.current;
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-
-    const prev = subParamsRef.current!;
-
-    ws.send(
-      JSON.stringify({
-        method: 'unsubscribe',
-        subscription: buildPayload({
-          coin: prev.coin,
-          nSigFigs: prev.nSigFigs,
-          mantissa: prev.mantissa,
-        }),
-      })
-    );
+    if (!subParamsRef.current) return;
 
     ws.send(
       JSON.stringify({
         method: 'subscribe',
-        subscription: buildPayload(updatedParams),
+        subscription: buildPayload(subParamsRef.current),
       })
     );
-
-    subParamsRef.current = { ...updatedParams };
   };
 
   const connect = () => {
+    if (!subParamsRef.current) return;
+
     setError(null);
 
     const ws = new WebSocket(clientConfig().hyperliquidWsUrl);
@@ -97,13 +80,15 @@ export const useHyperliquidOrderBook = ({
     ws.onopen = () => {
       setIsConnected(true);
       reconnectAttempts.current = 0;
-
       subscribe(ws);
     };
 
     ws.onmessage = (event) => {
+      lastMessageTimeRef.current = Date.now();
+
       try {
         const msg = JSON.parse(event.data as string);
+
         if (msg.channel === 'l2Book' && msg.data) {
           const data = msg.data as WsBook;
 
@@ -112,7 +97,7 @@ export const useHyperliquidOrderBook = ({
           );
 
           const sortedAsks = data.levels[1]?.sort(
-            (a, b) => Number(b.px) - Number(a.px)
+            (a, b) => Number(a.px) - Number(b.px)
           );
 
           setState({
@@ -124,7 +109,8 @@ export const useHyperliquidOrderBook = ({
           });
         }
       } catch {
-        // ignore parse errors for non-JSON or other channels
+        // ignore parse errors
+        console.error('Error parsing WebSocket message:', event.data);
       }
     };
 
@@ -133,12 +119,8 @@ export const useHyperliquidOrderBook = ({
     };
 
     ws.onclose = () => {
-      const reconnectDelayMs = 3000; // 3 seconds
-      const maxReconnectAttempts = 5; // 5 attempts
-
       setIsConnected(false);
       wsRef.current = null;
-      subParamsRef.current = null;
 
       reconnectAttempts.current += 1;
 
@@ -153,14 +135,75 @@ export const useHyperliquidOrderBook = ({
     };
   };
 
+  const updateSubscription = (updatedParams: SubscriptionParams) => {
+    const ws = wsRef.current;
+
+    if (!ws || ws.readyState !== WebSocket.OPEN || !subParamsRef.current)
+      return;
+
+    const prev = subParamsRef.current;
+
+    ws.send(
+      JSON.stringify({
+        method: 'unsubscribe',
+        subscription: buildPayload(prev),
+      })
+    );
+
+    ws.send(
+      JSON.stringify({
+        method: 'subscribe',
+        subscription: buildPayload(updatedParams),
+      })
+    );
+
+    subParamsRef.current = { ...updatedParams };
+  };
+
+  // initial connect
   useEffect(() => {
-    if (!coin || !nSigFigs || !!subParamsRef.current) return;
-    // If subParamsRef.current exists, websocket is already subscribed initially
+    if (!coin || !nSigFigs || subParamsRef.current) return;
 
     subParamsRef.current = { coin, nSigFigs, mantissa };
 
     connect();
   }, [coin, nSigFigs, mantissa]);
+
+  // reconnect when tab becomes visible (important for iPhone)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        const ws = wsRef.current;
+
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+          connect();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  // stale connection detection
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const ws = wsRef.current;
+
+      if (!ws) return;
+
+      const stale = Date.now() - lastMessageTimeRef.current > staleTimeoutMs;
+
+      if (stale) {
+        ws.close();
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return { ...state, isConnected, error, updateSubscription };
 };
