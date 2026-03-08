@@ -11,7 +11,7 @@ export interface CustomSelectOption {
 export const customSelectTheme = () => ({
   control: (provided: any, state: any) => ({
     ...provided,
-    background: '#131318',
+    background: '#000000',
     border: `1px solid #2d2d2d`,
     boxShadow: 'none',
     borderRadius: '2px',
@@ -30,7 +30,7 @@ export const customSelectTheme = () => ({
   }),
   menu: (provided: any, state: any) => ({
     ...provided,
-    background: '#131318',
+    background: '#000000',
     border: `1px solid #2d2d2d`,
     borderRadius: '2px',
     backdropFilter: 'blur(10px)',
@@ -49,7 +49,7 @@ export const customSelectTheme = () => ({
         ? '#2d2d2d'
         : state.isFocused
           ? '#2d2d2d'
-          : '#131318',
+          : '#000000',
       color: '#c7c7c7',
       padding: '6px 10px',
       minHeight: 'auto',

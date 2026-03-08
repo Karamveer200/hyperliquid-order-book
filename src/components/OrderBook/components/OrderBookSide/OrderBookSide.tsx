@@ -128,14 +128,14 @@ const OrderBookSideComponent = ({
             <span className="text-sys-text-muted">Size ({symbol})</span>
             <span
               {...{ [SUMMARY_SIZE_ATTR]: true }}
-              className="tabular-nums text-sys-text-strong"
+              className="tabular-nums text-white"
             />
           </div>
           <div className="flex justify-between gap-4">
             <span className="text-sys-text-muted">Total ($)</span>
             <span
               {...{ [SUMMARY_TOTAL_ATTR]: true }}
-              className="tabular-nums text-sys-text-strong"
+              className="tabular-nums text-white"
             />
           </div>
         </div>

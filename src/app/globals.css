@@ -14,16 +14,13 @@
   --color-sys-black-100: #252525;
   --color-sys-black-200: #191919;
   --color-sys-black-300: #101010;
-  --color-sys-black-400: #0d0d0f;
 
-  --color-sys-surface: #131318;
-  --color-sys-surface-elevated: #1c1c21;
-  --color-sys-surface-header: #15191c;
+  --color-sys-surface: #000000;
+  --color-sys-surface-elevated: #111114;
   --color-sys-border: #2d2d2d;
 
-  --color-sys-text-muted: #9b9b9b;
-  --color-sys-text: #c7c7c7;
-  --color-sys-text-strong: #e5e7eb;
+  --color-sys-text-muted: #efefef;
+  --color-sys-text: #efe7e7;
 
   --color-sys-mint-100: #94f1e8;
   --color-sys-bid: #3fb68b;
