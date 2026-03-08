@@ -161,7 +161,7 @@ const OrderBookSideComponent = ({
           <>
             {rows.map((row, index) => (
               <div
-                key={row.level.px}
+                key={index}
                 {...{ [ROW_INDEX_ATTR]: index }}
                 onMouseEnter={(e) => handleRowMouseEnter(e, rows)}
                 className="transition-colors duration-150 fade-in"
