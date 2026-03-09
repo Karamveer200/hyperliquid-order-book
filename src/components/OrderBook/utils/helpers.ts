@@ -38,7 +38,7 @@ export const computeRows = (
 
   return final.map(({ level, cumulative, totalPrice }) => ({
     level,
-    depthPercent: (cumulative / max) * 100,
+    depthPercent: Math.round((cumulative / max) * 100),
     total: totalPrice,
   }));
 };

@@ -12,15 +12,17 @@ interface OrderBookRowProps {
   isBid: boolean;
 }
 
-function OrderBookRowComponent({
-  level,
-  depthPercent,
-  total,
-  isBid,
-}: OrderBookRowProps) {
+const priceFormatter = new Intl.NumberFormat('en', {
+  notation: 'compact',
+  maximumFractionDigits: 2,
+});
+
+function OrderBookRowComponent(props: OrderBookRowProps) {
+  const { level, depthPercent, total, isBid } = props;
   const prevRef = useRef<{ px: string } | null>(null);
   const rowRef = useRef<HTMLDivElement>(null);
 
+  // Performance debugging logs
   useEffect(() => {
     if (prevRef.current && prevRef.current.px !== level.px) {
       const el = rowRef.current;
@@ -44,10 +46,7 @@ function OrderBookRowComponent({
 
   const priceColor = isBid ? 'text-sys-bid' : 'text-sys-ask';
 
-  const totalValue = new Intl.NumberFormat('en', {
-    notation: 'compact',
-    maximumFractionDigits: 2,
-  }).format(total);
+  const totalValue = priceFormatter.format(total);
 
   return (
     <div
@@ -85,4 +84,19 @@ function OrderBookRowComponent({
   );
 }
 
-export const OrderBookRow = memo(OrderBookRowComponent);
+export const OrderBookRow = memo(
+  OrderBookRowComponent,
+  (prevProps, nextProps) => {
+    const { level: prevLevel } = prevProps;
+    const { level: nextLevel } = nextProps;
+
+    return (
+      prevLevel.px === nextLevel.px &&
+      prevLevel.sz === nextLevel.sz &&
+      prevLevel.n === nextLevel.n &&
+      prevProps.depthPercent === nextProps.depthPercent &&
+      prevProps.total === nextProps.total &&
+      prevProps.isBid === nextProps.isBid
+    );
+  }
+);
