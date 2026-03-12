@@ -32,6 +32,7 @@ const OrderBookSideComponent = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
   const [hasMounted, setHasMounted] = useState(false);
+  const prevRowsRef = useRef<RowData[]>([]);
 
   const rowsRef = useRef<RowData[]>([]);
 
@@ -50,10 +51,10 @@ const OrderBookSideComponent = ({
     Math.min(MAX_VISIBLE_ROWS, Math.floor(containerHeight / ROW_HEIGHT_PX))
   );
 
-  const rows = useMemo(
-    () => computeRows(levels, isBid, maxVisibleRowsCount),
-    [levels, isBid, maxVisibleRowsCount]
-  );
+  const rows = useMemo(() => {
+    const rows = computeRows(levels, isBid, maxVisibleRowsCount);
+    return rows;
+  }, [levels, isBid, maxVisibleRowsCount]);
 
   useEffect(() => setHasMounted(true), []);
 
@@ -71,6 +72,12 @@ const OrderBookSideComponent = ({
   }, []);
 
   useEffect(() => {
+    if (!prevRowsRef.current) {
+      prevRowsRef.current = rows;
+    } else {
+      prevRowsRef.current = rowsRef.current;
+    }
+
     rowsRef.current = rows;
   }, [rows]);
 
@@ -128,6 +135,27 @@ const OrderBookSideComponent = ({
     showSummaryAtMouse(index, rows);
   };
 
+  const findNewPriceLevels = useMemo(() => {
+    return rowsRef.current.filter(
+      (row) =>
+        !prevRowsRef.current.some(
+          (prevRow) => prevRow.level.px === row.level.px
+        )
+    );
+  }, [prevRowsRef.current, rowsRef.current]);
+
+  const findRemovedPriceLevels = useMemo(() => {
+    return prevRowsRef.current
+      .map((oldRow, oldIndex) => {
+        const isRowRemoved = !rowsRef.current.some(
+          (newRow) => newRow.level.px === oldRow.level.px
+        );
+
+        if (isRowRemoved) return oldIndex;
+      })
+      .filter((index) => index !== undefined);
+  }, [prevRowsRef.current, rowsRef.current]);
+
   const summaryPortal =
     hasMounted &&
     typeof document !== 'undefined' &&
@@ -140,7 +168,7 @@ const OrderBookSideComponent = ({
     <>
       <div
         ref={containerRef}
-        className="flex h-full min-h-0 flex-col"
+        className={`flex h-full min-h-0 sm:justify-start sm:flex-col ${isBid ? 'flex-col' : 'flex-col-reverse justify-end'}`}
         onMouseMove={onMouseMove}
         onMouseLeave={onMouseLeave}
       >
@@ -158,6 +186,10 @@ const OrderBookSideComponent = ({
                   depthPercent={row.depthPercent}
                   total={row.total}
                   isBid={isBid}
+                  isNew={findNewPriceLevels.some(
+                    (newRow) => newRow.level.px === row.level.px
+                  )}
+                  isSwapped={findRemovedPriceLevels.includes(index)}
                 />
               </div>
             ))}

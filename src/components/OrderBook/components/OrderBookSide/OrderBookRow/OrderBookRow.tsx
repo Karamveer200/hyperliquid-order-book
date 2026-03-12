@@ -1,15 +1,15 @@
 import { memo, useEffect, useRef } from 'react';
 import type { WsLevel } from '@/lib/hyperliquid/ws-types';
 import { ROW_HEIGHT_PX } from '@/components/OrderBook/utils/constants';
-
-const FLASH_CLASS = 'order-book-row-flash';
-const FLASH_DURATION_MS = 500;
+import { motion } from 'framer-motion';
 
 interface OrderBookRowProps {
   level: WsLevel;
   depthPercent: number;
   total: number;
   isBid: boolean;
+  isNew: boolean;
+  isSwapped: boolean;
 }
 
 const priceFormatter = new Intl.NumberFormat('en', {
@@ -19,44 +19,24 @@ const priceFormatter = new Intl.NumberFormat('en', {
 
 function OrderBookRowComponent(props: OrderBookRowProps) {
   const { level, depthPercent, total, isBid } = props;
-  const prevRef = useRef<{ px: string } | null>(null);
   const rowRef = useRef<HTMLDivElement>(null);
-
-  // Performance debugging logs
-  useEffect(() => {
-    if (prevRef.current && prevRef.current.px !== level.px) {
-      const el = rowRef.current;
-
-      // Not sure about the exact scenario of flashing
-      // Clarify with the team
-
-      // if (el) {
-      //   el.classList.add(FLASH_CLASS);
-
-      //   const t = setTimeout(() => {
-      //     el.classList.remove(FLASH_CLASS);
-      //   }, FLASH_DURATION_MS);
-
-      //   return () => clearTimeout(t);
-      // }
-    }
-
-    prevRef.current = { px: level.px };
-  }, [level.px]);
 
   const priceColor = isBid ? 'text-sys-bid' : 'text-sys-ask';
 
   const totalValue = priceFormatter.format(total);
 
   return (
-    <div
+    <motion.div
       ref={rowRef}
       className="relative flex items-center text-xs group transition-colors"
-      style={{ height: `${ROW_HEIGHT_PX}px` }}
+      style={{
+        height: `${ROW_HEIGHT_PX}px`,
+        animation: props.isSwapped ? 'order-book-row-flash' : 'none',
+      }}
     >
       <div
         className={`absolute inset-y-0 right-0 opacity-[0.2] transition-[width] duration-150 ease-out ${
-          isBid ? 'bg-sys-bid' : 'bg-sys-ask'
+          isBid ? 'bg-sys-bid left-0 sm:right-0 sm:left-auto' : 'bg-sys-ask'
         }`}
         style={{ width: `${depthPercent}%` }}
       />
@@ -80,7 +60,7 @@ function OrderBookRowComponent(props: OrderBookRowProps) {
           {totalValue}
         </span>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -96,7 +76,9 @@ export const OrderBookRow = memo(
       prevLevel.n === nextLevel.n &&
       prevProps.depthPercent === nextProps.depthPercent &&
       prevProps.total === nextProps.total &&
-      prevProps.isBid === nextProps.isBid
+      prevProps.isBid === nextProps.isBid &&
+      prevProps.isNew === nextProps.isNew &&
+      prevProps.isSwapped === nextProps.isSwapped
     );
   }
 );

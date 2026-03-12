@@ -141,19 +141,29 @@ export function OrderBookWidget() {
 
       {error && <span className="text-xs text-sys-ask">{error}</span>}
 
-      <OrderBookColumnHeaders symbol={displaySymbol!} />
+      <div className="hidden sm:block">
+        <OrderBookColumnHeaders symbol={displaySymbol!} />
+      </div>
 
-      <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 sm:flex-col">
         <div className="min-h-0 flex-1 overflow-auto border-b border-sys-border">
+          <div className="sm:hidden">
+            <OrderBookColumnHeaders symbol={displaySymbol!} />
+          </div>
+
           <OrderBookSide levels={asks} symbol={displaySymbol!} />
         </div>
 
-        <div className="flex shrink-0 items-center justify-between border-y border-sys-border bg-sys-surface-elevated px-4 py-2 text-sm">
+        <div className="hidden sm:flex shrink-0 items-center justify-between border-y border-sys-border bg-sys-surface-elevated px-4 py-2 text-sm">
           <span className="text-sys-text-muted">Spread</span>{' '}
           <span className="tabular-nums text-sys-text">{spread || '—'}</span>
         </div>
 
         <div className="min-h-0 flex-1 overflow-auto">
+          <div className="sm:hidden">
+            <OrderBookColumnHeaders symbol={displaySymbol!} />
+          </div>
+
           <OrderBookSide levels={bids} isBid symbol={displaySymbol!} />
         </div>
       </div>

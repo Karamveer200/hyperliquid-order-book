@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div className="flex h-screen w-full flex-col bg-black">
       <div className="flex min-h-0 flex-1 flex-col items-center px-3">
-        <div className="h-full w-full max-w-md pt-2 pb-5">
+        <div className="h-full w-full sm:max-w-md pt-2 pb-5">
           <OrderBookWidget />
         </div>
       </div>

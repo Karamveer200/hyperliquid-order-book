@@ -62,7 +62,7 @@ body {
 /* Order book row flash when data updates */
 @keyframes order-book-row-flash {
   0% {
-    background-color: rgba(193, 189, 189, 0.12);
+    background-color: rgba(68, 224, 107, 0.12);
   }
   100% {
     background-color: transparent;
