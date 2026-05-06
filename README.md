@@ -1,4 +1,4 @@
-# Full-Stack Order Book
+# HyperLiquid Order Book
 
 A real-time order book UI for **Hyperliquid** (BTC/ETH), built with Next.js. Connects to the exchange WebSocket API, displays live bids/asks with configurable precision, and persists symbol/precision in localStorage.
 
