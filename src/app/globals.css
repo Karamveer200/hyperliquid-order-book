@@ -13,25 +13,13 @@
   --backdrop-blur-xs: 2px;
 
   /* Brand / UI Colors */
-  --color-sys-black-100: #252525;
-  --color-sys-black-200: #191919;
-  --color-sys-black-300: #101010;
-
-  --color-sys-surface: #000000;
-  --color-sys-surface-elevated: #111114;
-  --color-sys-border: #555555;
-
-  --color-sys-text-muted: #efefef;
-  --color-sys-text: #efe7e7;
-
-  --color-sys-mint-100: #94f1e8;
-  --color-sys-bid: #3fb68b;
-  --color-sys-ask: #ff5353;
-  --color-sys-divider: #6ee7b7;
+  --color-sys-black: #111111;
+  --color-sys-black-200: #2c2c2c;
+  --color-sys-green: #3dd68c;
 }
 
 body {
-  font-family: 'Public Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -45,43 +33,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--color-sys-black-200);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #353535;
+  background: var(--color-sys-black-200);
   border-radius: 3px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #353535;
-}
-
-/* Order book row flash when data updates */
-@keyframes order-book-row-flash {
-  0% {
-    background-color: rgba(68, 224, 107, 0.12);
-  }
-  100% {
-    background-color: transparent;
-  }
-}
-
-.order-book-row-flash {
-  animation: order-book-row-flash 0.5s ease-out forwards;
-}
-
-.fade-in {
-  animation: fade-in 0.5s ease-out forwards;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  background: var(--color-sys-black-200);
 }

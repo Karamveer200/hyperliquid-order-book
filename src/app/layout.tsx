@@ -1,9 +1,9 @@
-import { Public_Sans } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
+import { Providers } from '@/lib/providers/Providers';
 
-const publicSans = Public_Sans({
+const inter = Inter({
   subsets: ['latin'],
   variable: '--font-public-sans',
   display: 'swap',
@@ -20,9 +20,6 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="ClpytAI" />
         <meta name="google" content="notranslate" />
 
-        {/* Used for SEO and schema.org */}
-
-        {/* TODO: Add company name and domain */}
         <Script
           id="schema-website"
           type="application/ld+json"
@@ -43,8 +40,8 @@ export default function RootLayout({
         />
       </head>
 
-      <body className={`antialiased ${publicSans.className} bg-sys-black-900`}>
-        <AppRouterCacheProvider>{children}</AppRouterCacheProvider>
+      <body className={`antialiased ${inter.className} bg-sys-black-900`}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
